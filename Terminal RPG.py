@@ -1,6 +1,7 @@
 import time
 import os
 import keyboard
+import random
 
 class Enemy:
     def __init__(self,type,ehealth,edmg,espeed):
@@ -23,9 +24,15 @@ class Player:
         self.pspeed = pspeed
 
 class Heal:
-    def __init__(self,amount,uses):
+    def __init__(self,amount,uses,name):
         self.amount = amount
         self.uses = uses
+        self.name = name
+
+class Wepon:
+    def __init__(self,damage,name):
+        self.damage = damage
+        self.name = name
 
 def stats():
     print(f"""Stats:
@@ -33,11 +40,16 @@ def stats():
         Health: {player.phealth}
         Damage: {player.pdmg}
         Speed: {player.pspeed}""")
-    
-inventory = []
-inventory.append("test")
 
-Potion_of_Minor_Healing = Heal(5,1)
+Potion_of_Minor_Healing = Heal(5,1,"Potion of Minor Healing")
+Potion_of_Healing = Heal(10,2,"Potion of Healing")
+wooden_spear = Wepon(3,"Wooden Spear")
+stone_spear = Wepon(5,"Stone Spear")
+stick = Wepon(1,"Stick")
+
+inventory = []
+drops = [Potion_of_Minor_Healing, Potion_of_Healing, wooden_spear, stone_spear, stick]
+
 
 player_name = input("What is your name?: ")
 os.system('cls' if os.name == 'nt' else 'clear')
@@ -58,7 +70,10 @@ def goblin_apear():
         print(f"You hit goblin. goblin health {goblin.ehealth}")
         time.sleep(1)
         if goblin.ehealth == 0:
-            print(f"You defeted {goblin.type}")
+            print(f"You defeated {goblin.type}")
+            dropnum = random.randint(0, 4)
+            print(f"Goblin has dropped {drops[dropnum].name}")
+            inventory.append(drops[dropnum])
             break
         player.phealth = player.phealth - goblin.edmg
         print(f"Goblin hit you. Your Health is {player.phealth}")
