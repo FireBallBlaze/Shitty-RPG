@@ -52,14 +52,15 @@ wooden_sword = Wepon(5,"Wooden Sword +5")
 stone_sword = Wepon(7,"Stone Sword +7")
 metal_sword = Wepon(15, "Metal sword +15")
 
-inventory = [] #keep this empty so it auto puts stuff in
+healinventory = []
+weponinventory = [] #keep this empty so it auto puts stuff in
 gobdrops = [Potion_of_Minor_Healing, Potion_of_Healing, wooden_spear, stone_spear, stick]
 skeledrops = [Potion_of_Healing, simple_bow, advanced_bow, bone]
 zombdrops = [Potion_of_Healing, Potion_of_Major_Healing, wooden_sword, stone_sword, metal_sword]
 
 
 player_name = input("What is your name?: ")
-clear
+clear()
 player = Player(player_name,50,5)
 
 zombie = Enemy("Zombie",35,5)
@@ -69,56 +70,78 @@ goblin = Enemy("goblin",10,1)
 mobs = [zombie,skeleton,goblin]
 
 def showinventory():
-    displayinventory = [x.name for x in inventory]
-    print(displayinventory)
+    displayhealinventory = [x.name for x in healinventory]
+    displayweponinventory = [x.name for x in weponinventory]
+    print(f"Heals:\n{displayhealinventory}\n Wepons:\n{displayweponinventory}")
+def add_drop_to_inventory(drop_item):
+    if isinstance(drop_item, Wepon):
+        weponinventory.append(drop_item)
+    elif isinstance(drop_item, Heal):
+        healinventory.append(drop_item)
 
-def apear(type):
-    print(f"""{type.type} has apeared
-        Health: {type.ehealth}
-        Damage: {type.edmg}""")
+def apear(enemytype):
+    print(f"""{enemytype.type} has apeared
+        Health: {enemytype.ehealth}
+        Damage: {enemytype.edmg}""")
     input()
-    while type.ehealth > 0:
-        type.ehealth = type.ehealth - player.pdmg
-        print(f"You hit {type.type}. {type.type} health {type.ehealth}")
+    while enemytype.ehealth > 0:
+        enemytype.ehealth = enemytype.ehealth - player.pdmg
+        print(f"You hit {enemytype.type}. {enemytype.type} health {enemytype.ehealth}")
         time.sleep(1)
-        if type.ehealth == 0:
-            print(f"You defeated {type.type}")
-            if type == goblin:
+        if enemytype.ehealth <= 0:
+            print(f"You defeated {enemytype.type}")
+            if enemytype == goblin:
                 dropnum = random.randint(0, 4)
-                print(f"{type.type} has dropped {gobdrops[dropnum].name}")
-                inventory.append(gobdrops[dropnum])
+                drop = gobdrops[dropnum]
+                print(f"{enemytype.type} has dropped {drop.name}")
+                add_drop_to_inventory(drop)
                 goblin.ehealth = 10
                 break
-            elif type == skeleton:
-                dropnum = random.randint(0, 4)
-                print(f"{type.type} has dropped {skeledrops[dropnum].name}")
-                inventory.append(skeledrops[dropnum])
+            elif enemytype == skeleton:
+                dropnum = random.randint(0, 3)
+                drop = skeledrops[dropnum]
+                print(f"{enemytype.type} has dropped {drop.name}")
+                add_drop_to_inventory(drop)
                 skeleton.ehealth = 20
                 break
-            elif type == zombie:
+            elif enemytype == zombie:
                 dropnum = random.randint(0, 4)
-                print(f"{type.type} has dropped {zombdrops[dropnum].name}")
-                inventory.append(zombdrops[dropnum])
+                drop = zombdrops[dropnum]
+                print(f"{enemytype.type} has dropped {drop.name}")
+                add_drop_to_inventory(drop)
                 zombie.ehealth = 35
                 break
             else:
                 print("something broke idk what but its not my fault cus I say so")
-        player.phealth = player.phealth - type.edmg
-        print(f"{type.type} hit you. Your Health is {player.phealth}")
+        player.phealth = player.phealth -enemytype.edmg
+        print(f"{enemytype.type} hit you. Your Health is {player.phealth}")
         
 
 def prompt(enemy):
     while True:
         choice = input("Would  you like to view your stats, inventory or continue?: ").strip().lower()
         if choice == "stats":
+            clear()
             stats()
         elif choice == "continue":
             clear()
             apear(enemy)
+            input()
+            clear()
             break  
         elif choice == "inventory":
             clear()
             showinventory()
+            healq = input("Would you like to use all your heal items? Y/N: ").lower()
+            if healq == "y":
+                healamount = sum([x.amount for x in healinventory])
+                player.phealth = player.phealth + healamount
+                healinventory.clear()
+                print(f"Your health is now {player.phealth}")
+                input()
+                clear()
+            else:
+                clear()
         elif choice == "debug":
             debug_choice = input("Health or Damage: ").strip().lower()
             if debug_choice == "health":
