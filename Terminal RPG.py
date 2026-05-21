@@ -69,6 +69,14 @@ goblin = Enemy("goblin",10,1)
 
 mobs = [zombie,skeleton,goblin]
 
+playing = True
+def GameOver():
+    global playing
+    clear()
+    print("Game Over\nYou Lose")
+    playing = False
+
+
 def showinventory():
     displayhealinventory = [x.name for x in healinventory]
     displayweponinventory = [x.name for x in weponinventory]
@@ -80,41 +88,45 @@ def add_drop_to_inventory(drop_item):
         healinventory.append(drop_item)
 
 def apear(enemytype):
-    print(f"""{enemytype.type} has apeared
-        Health: {enemytype.ehealth}
-        Damage: {enemytype.edmg}""")
-    input()
-    while enemytype.ehealth > 0:
-        enemytype.ehealth = enemytype.ehealth - player.pdmg
-        print(f"You hit {enemytype.type}. {enemytype.type} health {enemytype.ehealth}")
-        time.sleep(1)
-        if enemytype.ehealth <= 0:
-            print(f"You defeated {enemytype.type}")
-            if enemytype == goblin:
-                dropnum = random.randint(0, 4)
-                drop = gobdrops[dropnum]
-                print(f"{enemytype.type} has dropped {drop.name}")
-                add_drop_to_inventory(drop)
-                goblin.ehealth = 10
+    if playing == True:
+        print(f"""{enemytype.type} has apeared
+            Health: {enemytype.ehealth}
+            Damage: {enemytype.edmg}""")
+        input()
+        while enemytype.ehealth > 0:
+            enemytype.ehealth = enemytype.ehealth - player.pdmg
+            print(f"You hit {enemytype.type}. {enemytype.type} health {enemytype.ehealth}")
+            time.sleep(1)
+            if enemytype.ehealth <= 0:
+                print(f"You defeated {enemytype.type}")
+                if enemytype == goblin:
+                    dropnum = random.randint(0, 4)
+                    drop = gobdrops[dropnum]
+                    print(f"{enemytype.type} has dropped {drop.name}")
+                    add_drop_to_inventory(drop)
+                    goblin.ehealth = 10
+                    break
+                elif enemytype == skeleton:
+                    dropnum = random.randint(0, 3)
+                    drop = skeledrops[dropnum]
+                    print(f"{enemytype.type} has dropped {drop.name}")
+                    add_drop_to_inventory(drop)
+                    skeleton.ehealth = 20
+                    break
+                elif enemytype == zombie:
+                    dropnum = random.randint(0, 4)
+                    drop = zombdrops[dropnum]
+                    print(f"{enemytype.type} has dropped {drop.name}")
+                    add_drop_to_inventory(drop)
+                    zombie.ehealth = 35
+                    break
+                else:
+                    print("something broke idk what but its not my fault cus I say so")
+            player.phealth = player.phealth -enemytype.edmg
+            if player.phealth <= 0:
+                GameOver()
                 break
-            elif enemytype == skeleton:
-                dropnum = random.randint(0, 3)
-                drop = skeledrops[dropnum]
-                print(f"{enemytype.type} has dropped {drop.name}")
-                add_drop_to_inventory(drop)
-                skeleton.ehealth = 20
-                break
-            elif enemytype == zombie:
-                dropnum = random.randint(0, 4)
-                drop = zombdrops[dropnum]
-                print(f"{enemytype.type} has dropped {drop.name}")
-                add_drop_to_inventory(drop)
-                zombie.ehealth = 35
-                break
-            else:
-                print("something broke idk what but its not my fault cus I say so")
-        player.phealth = player.phealth -enemytype.edmg
-        print(f"{enemytype.type} hit you. Your Health is {player.phealth}")
+            print(f"{enemytype.type} hit you. Your Health is {player.phealth}")
         
 
 def prompt(enemy):
@@ -154,8 +166,7 @@ def prompt(enemy):
             print("Please select stats or continue")
 
 prompt(goblin)
-input()
 
-while True:
+while playing == True:
     rng = random.randint(0,2)
     prompt(mobs[rng])
